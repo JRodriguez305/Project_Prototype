@@ -4,5 +4,12 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/davis2.unity
+    guid: 350546991cc4b7f469fbcc792b216986
+  - enabled: 1
+    path: Assets/Scenes/doorScene.unity
+    guid: d983ac666d6b9254288e6410dfc9d76d
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0
