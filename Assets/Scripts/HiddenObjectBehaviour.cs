@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -55,8 +55,23 @@ public class HiddenObjectBehaviour : MonoBehaviour
         if (isRevealed && CompareTag(requiredTag))
         {
             Debug.Log("Picked up item");
-            inventory.AddInventoryItem(itemToAdd); // Notify the inventory
+            inventory.AddInventoryItem(itemToAdd);
             Destroy(gameObject);
         }
+    }
+
+    // ✅ New method added for player interaction
+    public void Interact()
+    {
+        Debug.Log("Player interacted with hidden object.");
+
+        // Optionally add to inventory
+        if (inventory != null && itemToAdd != null)
+        {
+            inventory.AddInventoryItem(itemToAdd);
+        }
+
+        // Immediately destroy the object
+        Destroy(gameObject);
     }
 }
