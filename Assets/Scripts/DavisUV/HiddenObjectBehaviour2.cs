@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using TMPro;
 
 [RequireComponent(typeof(Renderer), typeof(Collider))]
 public class HiddenObjectBehaviour2 : MonoBehaviour
@@ -19,20 +20,21 @@ public class HiddenObjectBehaviour2 : MonoBehaviour
     [Header("References")]
     public Light uvFlashlight;
     public Transform player;
+    public TextMeshProUGUI messageText; // Assign your UI text here
 
     void Start()
     {
         rend = GetComponent<Renderer>();
         col = GetComponent<Collider>();
-
-        if (rend != null)
-            Hidden();
+        Hidden();
 
         if (player == null)
-            player = GameObject.FindGameObjectWithTag("Player")?.transform; // fallback
+            player = GameObject.FindGameObjectWithTag("Player")?.transform;
 
         if (uvFlashlight == null)
-            uvFlashlight = FindObjectOfType<Light>(); // fallback
+            uvFlashlight = FindObjectOfType<Light>();
+
+        ClearMessage();
     }
 
     void Update()
@@ -67,21 +69,35 @@ public class HiddenObjectBehaviour2 : MonoBehaviour
 
     void HandleInteraction()
     {
-        if (!isRevealed) return;
+        if (!isRevealed)
+        {
+            ClearMessage();
+            return;
+        }
 
         float distToPlayer = Vector3.Distance(player.position, transform.position);
 
-        if (distToPlayer <= interactDistance && Input.GetKeyDown(KeyCode.E))
+        if (distToPlayer <= interactDistance)
         {
-            Debug.Log($"[HiddenObject] {name} picked up with E.");
+            ShowMessage("Press E to pick up " + itemToAdd.itemName);
 
-            if (CompareTag(requiredTag))
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                if (inventory != null && itemToAdd != null)
-                    inventory.AddInventoryItem(itemToAdd);
-            }
+                Debug.Log($"[HiddenObject] {name} picked up with E.");
 
-            Destroy(gameObject);
+                if (CompareTag(requiredTag))
+                {
+                    if (inventory != null && itemToAdd != null)
+                        inventory.AddInventoryItem(itemToAdd);
+                }
+
+                Destroy(gameObject);
+                ClearMessage();
+            }
+        }
+        else
+        {
+            ClearMessage();
         }
     }
 
@@ -110,10 +126,22 @@ public class HiddenObjectBehaviour2 : MonoBehaviour
             rend.enabled = false;
             col.enabled = false;
             gameObject.layer = LayerMask.NameToLayer("Default");
+            ClearMessage();
         }
     }
 
-    // 🟣 Debug visualization in editor
+    void ShowMessage(string text)
+    {
+        if (messageText != null)
+            messageText.text = text;
+    }
+
+    void ClearMessage()
+    {
+        if (messageText != null)
+            messageText.text = "";
+    }
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.magenta;
@@ -123,4 +151,3 @@ public class HiddenObjectBehaviour2 : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, interactDistance);
     }
 }
-
