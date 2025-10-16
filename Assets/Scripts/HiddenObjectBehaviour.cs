@@ -69,6 +69,7 @@ public class HiddenObjectBehaviour : MonoBehaviour
         if (inventory != null && itemToAdd != null)
         {
             inventory.AddInventoryItem(itemToAdd);
+            Destroy(gameObject);
         }
 
         // Immediately destroy the object
