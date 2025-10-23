@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class UVLightBehaviour : MonoBehaviour
 {
+    // change this to spherecasting
     public float detectionRange = 10f;
     public LayerMask detectionMask;
 
