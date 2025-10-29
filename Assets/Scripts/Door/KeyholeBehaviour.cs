@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class KeyholeBehaviour : MonoBehaviour
 {
-    public DoorBehaviour connectedDoor;
+    public DoorOpenBehaviour connectedDoor;
 
     public void UnlockDoor()
     {

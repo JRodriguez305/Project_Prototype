@@ -7,6 +7,7 @@ TagManager:
   - Painting
   - Hidden
   - Keyhole
+  - DoorManager
   layers:
   - Default
   - TransparentFX

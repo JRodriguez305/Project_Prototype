@@ -4,6 +4,13 @@ public class DoorUnlockBehaviour : MonoBehaviour
 {
     public InventoryBehaviour inventory;
 
+    void Awake()
+    {
+        if (inventory == null)
+        {
+            inventory = FindObjectOfType<InventoryBehaviour>();
+        }
+    }
     void Update()
     {
         if(Input.GetMouseButtonDown(0))

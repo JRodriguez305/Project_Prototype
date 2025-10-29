@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DoorBehaviour : MonoBehaviour
+public class DoorOpenBehaviour : MonoBehaviour
 {
     private bool isUnlocked = false;
     private bool isOpening = false;

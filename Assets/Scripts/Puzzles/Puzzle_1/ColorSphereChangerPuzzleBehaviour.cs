@@ -4,6 +4,7 @@ public class ColorSphereChangerPuzzleBehaviour : MonoBehaviour
 {
     public Material[] materials;
     public GameObject sphereSolution;
+    public DoorSpawnerBehaviour doorSpawner;
 
     private Renderer sphereRenderer;
     private int matIndex = 0;
@@ -38,6 +39,8 @@ public class ColorSphereChangerPuzzleBehaviour : MonoBehaviour
 
                 Collider col = GetComponent<Collider>();
                 if (col != null) col.enabled = false;
+
+                doorSpawner.SpawnDoor();
             }
         }
     }
