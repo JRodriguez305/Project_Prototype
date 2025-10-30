@@ -2,31 +2,55 @@ using UnityEngine;
 
 public class LightToggleBehaviour : MonoBehaviour
 {
-    [SerializeField]
-    GameObject uvLight, flashLight;
+    [Header("Flashlight References")]
+    [SerializeField] private GameObject uvLight;
+    [SerializeField] private GameObject flashLight;
 
-    private bool isOn = false;
+    [Header("Controls")]
+    [SerializeField] private KeyCode toggleKey = KeyCode.F;
+
+    private UVLightBehaviour uvBehaviour;
+    private Light uvLightSource;
+    private Light normalLightSource;
+    private bool isUVMode = false;
 
     void Start()
     {
-        uvLight.SetActive(false);
-        flashLight.SetActive(true);
+        if (uvLight == null || flashLight == null)
+        {
+            Debug.LogWarning("LightToggleBehaviour: Missing light references!");
+            return;
+        }
+
+        uvBehaviour = uvLight.GetComponent<UVLightBehaviour>();
+        uvLightSource = uvLight.GetComponent<Light>();
+        normalLightSource = flashLight.GetComponent<Light>();
+
+        SetMode(false);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(toggleKey))
         {
-            ToggleLight();
+            isUVMode = !isUVMode;
+            SetMode(isUVMode);
         }
     }
 
-    void ToggleLight()
+    private void SetMode(bool uvMode)
     {
-        isOn = !isOn;
-        uvLight.SetActive(isOn);
-        flashLight.SetActive(!isOn);
+        uvLight.SetActive(uvMode);
+        flashLight.SetActive(!uvMode);
 
-        // Need to manually disable the raycast here for the UV Light
+        if (uvBehaviour != null)
+            uvBehaviour.enabled = uvMode;
+
+        if (uvLightSource != null)
+            uvLightSource.enabled = uvMode;
+        if (normalLightSource != null)
+            normalLightSource.enabled = !uvMode;
+
+        Debug.Log($"Light mode: {(uvMode ? "UV" : "Normal")}");
     }
 }

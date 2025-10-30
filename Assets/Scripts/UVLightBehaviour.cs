@@ -1,55 +1,52 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class UVLightBehaviour : MonoBehaviour
 {
-    // change this to spherecasting
+    [Header("Detection Settings")]
     public float detectionRange = 10f;
+    [Range(0.1f, 2f)] public float detectionRadius = 0.5f;
     public LayerMask detectionMask;
 
-    private HiddenObjectBehaviour currentlyRevealed;
+    private readonly List<HiddenObjectBehaviour> revealedObjects = new List<HiddenObjectBehaviour>();
 
     void Update()
     {
-        Ray ray = new Ray(transform.position, transform.forward);
-        Debug.DrawRay(ray.origin, ray.direction * detectionRange, Color.green);
+        Debug.DrawRay(transform.position, transform.forward * detectionRange, Color.magenta);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, detectionRange, detectionMask))
+        Ray ray = new Ray(transform.position, transform.forward);
+        RaycastHit[] hits = Physics.SphereCastAll(ray, detectionRadius, detectionRange, detectionMask);
+        HashSet<HiddenObjectBehaviour> hitThisFrame = new HashSet<HiddenObjectBehaviour>();
+
+        foreach (RaycastHit hit in hits)
         {
             HiddenObjectBehaviour hidden = hit.collider.GetComponent<HiddenObjectBehaviour>();
-
             if (hidden != null)
             {
-                // If we're hitting a new object
-                if (currentlyRevealed != hidden)
-                {
-                    // Hide the previously revealed object
-                    if (currentlyRevealed != null)
-                        currentlyRevealed.Hide();
+                hidden.Reveal();
+                hitThisFrame.Add(hidden);
 
-                    // Reveal the new object
-                    hidden.Reveal();
-                    currentlyRevealed = hidden;
-                }
-            }
-            else
-            {
-                // Hit something else, hide previously revealed
-                if (currentlyRevealed != null)
-                {
-                    currentlyRevealed.Hide();
-                    currentlyRevealed = null;
-                }
+                if (!revealedObjects.Contains(hidden))
+                    revealedObjects.Add(hidden);
             }
         }
-        else
+
+        // Safely hide objects that are no longer hit
+        for (int i = revealedObjects.Count - 1; i >= 0; i--)
         {
-            // Nothing hit – hide the currently revealed object
-            if (currentlyRevealed != null)
+            HiddenObjectBehaviour obj = revealedObjects[i];
+
+            // skip destroyed or null references
+            if (obj == null)
             {
-                currentlyRevealed.Hide();
-                currentlyRevealed = null;
+                revealedObjects.RemoveAt(i);
+                continue;
+            }
+
+            if (!hitThisFrame.Contains(obj))
+            {
+                obj.Hide();
+                revealedObjects.RemoveAt(i);
             }
         }
     }

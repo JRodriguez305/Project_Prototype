@@ -1,4 +1,4 @@
-Shader "Custom/UVFootstepOutline"
+﻿Shader "Custom/UVFootstepOutline"
 {
     Properties
     {
@@ -6,6 +6,7 @@ Shader "Custom/UVFootstepOutline"
         _GlowColor ("Glow Color", Color) = (0.5,0,1,1)
         _GlowIntensity ("Glow Intensity", Float) = 5
         _ConeAngle ("Spotlight Cone Angle", Float) = 0.5
+        _LightOn ("Light On", Float) = 0     // ✅ new toggle sent from script
     }
 
     SubShader
@@ -13,6 +14,7 @@ Shader "Custom/UVFootstepOutline"
         Tags { "RenderType"="Transparent" "Queue"="Transparent" }
         LOD 100
         Blend One One
+        ZWrite Off
 
         Pass
         {
@@ -40,6 +42,7 @@ Shader "Custom/UVFootstepOutline"
             float _ConeAngle;
             fixed4 _GlowColor;
             float _GlowIntensity;
+            float _LightOn;   // ✅ added
 
             v2f vert(appdata v)
             {
@@ -52,19 +55,25 @@ Shader "Custom/UVFootstepOutline"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // Sample footprint texture
-                float alpha = tex2D(_FootprintTex, i.uv).r; // white = footprint, black = background
+                // Sample footprint / nail mask
+                float alpha = tex2D(_FootprintTex, i.uv).r;
 
-                // Create outline: edge = where alpha > 0 but neighbor < 1
-                float edge = smoothstep(0.1, 0.3, alpha); // tweak to get thin outline
+                // Optional edge softness for glow
+                float edge = smoothstep(0.1, 0.3, alpha);
 
-                // UV light calculation
+                // Calculate spotlight influence
                 float3 fragDir = normalize(i.worldPos - _LightPos);
                 float dotAngle = dot(fragDir, normalize(_LightDir));
+
+                // Falloff from cone edge to center
                 float intensity = smoothstep(cos(_ConeAngle), 1.0, dotAngle);
 
-                fixed4 finalCol = fixed4(0,0,0,0);
-                finalCol.rgb += _GlowColor.rgb * _GlowIntensity * intensity * edge;
+                // ✅ Multiply by _LightOn so it’s completely dark when UV is off
+                intensity *= _LightOn;
+
+                // Final color output
+                fixed4 finalCol;
+                finalCol.rgb = _GlowColor.rgb * _GlowIntensity * intensity * edge;
                 finalCol.a = intensity * edge;
 
                 return finalCol;
