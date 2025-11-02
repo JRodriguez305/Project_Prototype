@@ -12,27 +12,39 @@ public class HiddenObjectBehaviour : MonoBehaviour
     [SerializeField] private InventoryItem itemToAdd;
     [SerializeField] private InventoryBehaviour inventory;
 
+    // 👁️ External read-only property
+    public bool IsRevealed => isRevealed && !isCollected;
+
     void Start()
     {
         rend = GetComponent<Renderer>();
         if (rend != null)
-            rend.enabled = false; // start invisible
+            rend.enabled = false; // starts invisible
     }
 
+    /// <summary>
+    /// Makes the object visible when UV light hits it.
+    /// </summary>
     public void Reveal()
     {
         if (isRevealed || isCollected || rend == null) return;
         rend.enabled = true;
         isRevealed = true;
+
+        // optional: switch to a UV-visible layer if needed
         gameObject.layer = LayerMask.NameToLayer("HiddenTest");
     }
 
+    /// <summary>
+    /// Hides the object when UV light is no longer hitting it.
+    /// </summary>
     public void Hide()
     {
-        // safeguard for destroyed renderer
         if (rend == null || !isRevealed || isCollected) return;
         rend.enabled = false;
         isRevealed = false;
+
+        // optional: maintain same hidden layer
         gameObject.layer = LayerMask.NameToLayer("HiddenTest");
     }
 
@@ -50,16 +62,18 @@ public class HiddenObjectBehaviour : MonoBehaviour
         Collect();
     }
 
+    /// <summary>
+    /// Handles collection logic, inventory addition, and cleanup.
+    /// </summary>
     private void Collect()
     {
         isCollected = true;
-
-        Debug.Log($"Picked up: {itemToAdd?.itemName ?? "Unknown"}");
+        Debug.Log($"🧩 Picked up: {itemToAdd?.itemName ?? "Unknown"}");
 
         if (inventory != null && itemToAdd != null)
             inventory.AddInventoryItem(itemToAdd);
 
-        // Delay destruction slightly so UVLightBehaviour can clean up
+        // Short delay before destroy to allow UV system to update safely
         Destroy(gameObject, 0.1f);
     }
 }
